@@ -37,13 +37,14 @@
         </beans:property>
     </beans:bean>
 
-    <annotation-driven content-negotiation-manager="cnManager" conversion-service="conversionService">
-        <message-converters>
-            <beans:bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/>
-            <!--<beans:bean class="org.springframework.http.converter.xml.MarshallingHttpMessageConverter"-->
-                        <!--p:marshaller-ref="castorMarshaller" p:unmarshaller-ref="castorMarshaller"/>-->
-        </message-converters>
-    </annotation-driven>
+    <!--<annotation-driven content-negotiation-manager="cnManager" conversion-service="conversionService">-->
+        <!--<message-converters>-->
+            <!--<beans:bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/>-->
+            <!--&lt;!&ndash;<beans:bean class="org.springframework.http.converter.xml.MarshallingHttpMessageConverter"&ndash;&gt;-->
+                        <!--&lt;!&ndash;p:marshaller-ref="castorMarshaller" p:unmarshaller-ref="castorMarshaller"/>&ndash;&gt;-->
+        <!--</message-converters>-->
+    <!--</annotation-driven>-->
+    <annotation-driven/>
 
     <resources mapping="/resources/**" location="/WEB-INF/web-resources/"/>
 

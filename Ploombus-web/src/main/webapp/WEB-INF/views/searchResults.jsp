@@ -1,23 +1,57 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: Vitaly
-  Date: 03.09.2016
-  Time: 20:18
-  To change this template use File | Settings | File Templates.
---%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@taglib uri="http://www.springframework.org/tags" prefix="spring" %>
-<spring:message code="button.search" var="buttonSearch"/>
+<!DOCTYPE html>
 <html>
+
 <head>
     <title>Ploombus</title>
+    <link rel="stylesheet" type="text/css" href="/resources/css/css.css"/>
+
 </head>
-    <body>
-        <form target="/search" method="post">
-            <div><spring:message code="label.search"/></div>
-            <div><input name="q" value="${query}"></div>
-            <div><input type="submit" name="search" value="${buttonSearch}"></div>
+
+<body>
+<div class="wraper">
+
+    <div class="header-result">
+        <div class="logo-header">
+            <p>
+                <span class="bloo">P</span>
+                <span class="red">l</span>
+                <span class="yellow">o</span>
+                <span class="bloo">o</span>
+                <span class="green">m</span>
+                <span class="yellow">b</span>
+                <span class="red">e</span>
+                <span class="green">r</span>
+            </p>
+        </div>
+        <form action="/search" method="post">
+
+            <div class="result-text-input">
+                <input type="text" id="search" name="q" value=""/>
+            </div>
+            <div class="button-result">
+                <button class="lsb" value="search" aria-label=" Ploomber" name="btnG" type="submit">
+                    <span class="sbico"></span>
+                </button>
+            </div>
         </form>
-    </body>
-<div>SearchResults...</div>
+
+    </div>
+    <div class="content">
+        <c:if test="${not empty searchResults}">
+            <div class="result">
+                <c:forEach items="${searchResults}" var="result">
+                    <div class="result-0">
+                        <h3><a href="${result.url}">${result.title}</a></h3>
+                        <p class="link">${result.url}</p>
+                        <p>${result.snippet}</p>
+                    </div>
+                </c:forEach>
+            </div>
+        </c:if>
+    </div>
+
+</div>
+</body>
 </html>

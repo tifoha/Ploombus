@@ -8,6 +8,7 @@
 
     <modules>
         <module>Ploombus-web</module>
+        <module>Search engine</module>
     </modules>
 
     <name>Ploombus</name>
