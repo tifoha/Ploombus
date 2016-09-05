@@ -1,5 +1,7 @@
 package ua.tifoha.crawler;
 
+import java.util.function.*;
+
 /**
  * Created by Vitaly on 04.09.2016.
  */
@@ -16,23 +18,18 @@ public class SnooperConfig implements Configuration{
      */
     private int maxPagesToFetch = -1;
 
-    /**
-     * Politeness delay in milliseconds (delay between sending two requests to
-     * the same host).
-     */
-    private int politenessDelay = 200;
-
-    /*
-    * Filtering urls*/
-    private UrlFilter urlFilter;
-    private long delayBeforeEnding;
+    private long delayBeforeEnding = 10000;
     private int numberOfSnoopDogs = Runtime.getRuntime().availableProcessors();;
+    private PageFetcher pageFetcher;
+    private PageIndexer pageIndexer;
+    private UnaryOperator<Link> linkHandler = UnaryOperator.identity();
+    private Predicate<Link> linkFilter = link -> true;
+
+    /*Filtering urls*/
+    private UrlFilter urlFilter;
 
     @Override
     public void validate() {
-        if (politenessDelay < 0) {
-            throw new RuntimeException("Invalid value for politeness delay: " + politenessDelay);
-        }
         if (maxDepthOfCrawling < -1) {
             throw new RuntimeException("Maximum crawl depth should be either a positive number or -1 for unlimited depth.");
         }
@@ -41,6 +38,12 @@ public class SnooperConfig implements Configuration{
         }
         if (numberOfSnoopDogs < 1) {
             throw new RuntimeException("Minimum number of snoop dogs should be greater than 1");
+        }
+        if (pageFetcher == null) {
+            throw new RuntimeException("Page fetcher shouldn't be null");
+        }
+        if (pageIndexer == null) {
+            throw new RuntimeException("Page indexer shouldn't be null");
         }
 
     }
@@ -55,5 +58,25 @@ public class SnooperConfig implements Configuration{
 
     public int getNumberOfSnoopDogs() {
         return numberOfSnoopDogs;
+    }
+
+    public PageFetcher getPageFetcher() {
+        return pageFetcher;
+    }
+
+    public int getMaxDepthOfCrawling() {
+        return maxDepthOfCrawling;
+    }
+
+    public PageIndexer getIndexer() {
+        return pageIndexer;
+    }
+
+    public UnaryOperator<Link> getLinkHandler() {
+        return linkHandler;
+    }
+
+    public  Predicate<Link> geLinkFilter() {
+        return linkFilter;
     }
 }

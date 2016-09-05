@@ -4,11 +4,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.tifoha.util.UrlUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.*;
+import java.util.function.UnaryOperator;
 
 /**
  * Created by Vitaly on 04.09.2016.
@@ -16,9 +18,10 @@ import java.util.concurrent.*;
 public class WebSnooper extends Configurable<SnooperConfig> implements AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(WebSnooper.class);
 
-    private Set<String> visitedUrls = new ConcurrentSkipListSet<>();
-    private BlockingDeque<String> urlsToVisit = new LinkedBlockingDeque<>();
+    private Set<Link> visitedUrls = new ConcurrentSkipListSet<>();
+    private BlockingDeque<Link> urlsToVisit = new LinkedBlockingDeque<>();
     private ExecutorService exec;
+//    private LinkFactory linkFactory = new LinkFactory(config);
 
     public WebSnooper(SnooperConfig config) {
         super(config);
@@ -34,32 +37,33 @@ public class WebSnooper extends Configurable<SnooperConfig> implements AutoClose
 
     }
 
-    @Override
-    public SnooperConfig getConfig() {
-        return config;
-    }
-
-    private void addUrl_0(String url) {
+    private void addLink_0(String url) {
+        if (exec.isShutdown()) {
+            logger.error("Unable to add URL: {}", url);
+            throw new RuntimeException("Shooper is shuted down");
+        }
         try {
             String canonicalUrl = UrlUtils.getCanonicalURL(url);
-            if (canonicalUrl == null) {
-                logger.error("Invalid URL: {}", url);
+            if (canonicalUrl != null) {
+                Link link = new Link(canonicalUrl, config.getMaxDepthOfCrawling());
+                this.urlsToVisit.put(link);
+                logger.error("URL: {} putted in the queue", url);
             } else {
-                this.urlsToVisit.put(canonicalUrl);
+                logger.error("Invalid URL: {}", url);
             }
         } catch (InterruptedException e) {
             logger.error("Unable to add URL: {}", url);
         }
     }
 
-    private String getNextUrl() throws InterruptedException {
-        String nextUrl;
+    private Link getNextLink() throws InterruptedException {
+        Link nextLink = null;
         do {
-            nextUrl = urlsToVisit.take();
-        } while (this.visitedUrls.contains(nextUrl));
-        visitedUrls.add(nextUrl);
+            nextLink = urlsToVisit.take();
+        } while (this.visitedUrls.contains(nextLink));
+        visitedUrls.add(nextLink);
 
-        return nextUrl;
+        return nextLink;
     }
 
     public void shutdown() {
@@ -73,89 +77,102 @@ public class WebSnooper extends Configurable<SnooperConfig> implements AutoClose
 
     public boolean isTerminated() {
         logger.info("Terminating...");
-        return exec.isTerminated();
+        boolean terminated = exec.isTerminated();
+        logTermination(terminated);
+        return terminated;
     }
 
     public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
         logger.info("Awaiting termination...");
-        return exec.awaitTermination(timeout, unit);
+        boolean terminated = exec.awaitTermination(timeout, unit);
+        logTermination(terminated);
+        return terminated;
     }
 
-    public List<String> shutdownNow() {
+    private void logTermination(boolean terminated) {
+        if (terminated) {
+            logger.info("Terminated");
+        } else {
+            logger.info("Not terminated");
+        }
+    }
+
+    public List<Link> shutdownNow() {
         exec.shutdownNow();
         logger.info("Shutdown now");
         return new ArrayList<>(urlsToVisit);
     }
 
-
-    //    public void crawl(String url) {
-//        while (this.visitedUrls.size() <= config.getMaxPagesToFetch()) {
-//            String currentUrl;
-//
-//            PageFetcher fetcher = new PageFetcher();
-//            if (this.urlsToVisit.isEmpty()) {
-//                currentUrl = url;
-//                this.visitedUrls.add(currentUrl);
-//            } else {
-////                currentUrl = getNextUrl()
-////                        new ForkJoinPool().
-//            }
-//        }
-//    }
-
-//    private synchronized void waitForUrl() {
-//        long waitTime = config.getDelayBeforeEnding();
-//        if (waitTime > 0) {
-//            try {
-//                wait(waitTime);
-//
-//                //aborting crawler
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-////                todo handle exception and store state
-//            }
-//        }
-//    }
-
     @Override
     public void close() throws Exception {
+        logger.info("Shutdown");
         exec.shutdown();
     }
 
     public void addUrls(Collection<String> urls) {
-        urls.stream().forEach(this::addUrl_0);
+        urls.stream().forEach(this::addLink_0);
     }
 
     public void addUrl(String url) {
-        addUrl_0(url);
+        addLink_0(url);
     }
 
     private class SnoopDog implements Runnable {
         private String name;
+        private PageFetcher fetcher;
+        private PageIndexer indexer;
 
         public SnoopDog(String name) {
             this.name = name;
+            fetcher = config.getPageFetcher();
+            indexer = config.getIndexer();
         }
 
         public void snoop() throws InterruptedException {
-            String nextUrl = getNextUrl();
-            logger.info("Taking url \"{}\" from the queue", nextUrl);
-            TimeUnit.MILLISECONDS.sleep(100);
+            Link nextLink = getNextLink();
+            logger.info("Taking url \"{}\" from the queue", nextLink);
+            UnaryOperator<Link> linkHandler = config.getLinkHandler();
+            Link link = linkHandler.apply(nextLink);
+            if (config.geLinkFilter().test(link))
+            try {
+                PageResponse responseData = fetcher.fetch(link);
+            } catch (IOException e) {
+                logger.error("Unable to load page by link {}", link);
+            }
+//            Page page = fetcher.fetch(nextLink);
+//            List<Link> links = page.getLinks();
+//            addLinks(links);
+//
+//            indexer.index(page);
         }
 
         @Override
         public void run() {
+            onStart();
             try {
                 while (!Thread.interrupted()) {
                     snoop();
                 }
             } catch (InterruptedException e) {
-                logger.error("SnoopDog {} Interrupted.", this);
-                //// TODO: 05.09.2016 handle interruption of the snoop dog
+                afterInterrupt();
             } finally {
-                logger.error("SnoopDog {} died.", this);
-                //// TODO: 05.09.2016 finalizing snoop dog
+                beforeEnd();
             }
+        }
+
+        public void beforeEnd() {
+            logger.error("SnoopDog {} died.", this);
+            //Lazy by default
+        }
+
+        public void afterInterrupt() {
+            logger.error("SnoopDog {} Interrupted.", this);
+            //Lazy by default
+        }
+
+        public void onStart() {
+            logger.error("SnoopDog {} started.", this);
+            //Lazy by default
         }
 
         @Override
@@ -163,6 +180,31 @@ public class WebSnooper extends Configurable<SnooperConfig> implements AutoClose
             return name;
         }
     }
+
+    private void addLinks(List<Link> links) {
+
+    }
+
+//    private class LinkFactory {
+//        private int maxDepthOfCrawling;
+//
+//
+//        public LinkFactory(SnooperConfig config) {
+//            maxDepthOfCrawling = config.getMaxDepthOfCrawling();
+//        }
+//
+//        public Link newLink(String url) {
+////            URL url = null;
+////            try {
+////                url = new URL(urlString);
+////            } catch (MalformedURLException e) {
+////                e.printStackTrace();
+////            }
+//            return new Link(url, maxDepthOfCrawling);
+//        }
+//    }
+
+
 
 }
 

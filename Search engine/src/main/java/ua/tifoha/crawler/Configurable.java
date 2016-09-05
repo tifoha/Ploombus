@@ -11,7 +11,8 @@ public abstract class Configurable<T extends Configuration> {
         this.config = config;
     }
 
-    public abstract T getConfig();
+    public T getConfig() {
+        return config;
+    }
 
-//    protected abstract void applyConfig();
 }

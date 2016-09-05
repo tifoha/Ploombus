@@ -76,6 +76,13 @@ public class UrlUtils {
         }
     }
 
+    public static boolean isEquals(String url1, String url2) {
+        String cUrl1 = getCanonicalURL(url1);
+        String cUrl2 = getCanonicalURL(url2);
+
+        return cUrl1.equals(cUrl2);
+    }
+
     /**
      * Takes a query string, separates the constituent name-value pairs, and
      * stores them in a LinkedHashMap ordered by their original order.
