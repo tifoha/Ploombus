@@ -8,12 +8,12 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Created by Vitaly on 03.09.2016.
+ * Created by Vitaly on 11.09.2016..
  */
 @RestController
 @RequestMapping("api/v1/{format}/")
 public class MainRestController {
-    @RequestMapping(value = "search", method = RequestMethod.GET)
+    @RequestMapping(value = "ua/tifoha/search", method = RequestMethod.GET)
     public List<String> search() {
         return Arrays.asList("asdf sd f asdf a sdf sdf".split("\\W+"));
     }

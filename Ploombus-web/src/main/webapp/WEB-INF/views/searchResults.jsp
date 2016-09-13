@@ -28,10 +28,10 @@
         <form action="/search" method="post">
 
             <div class="result-text-input">
-                <input type="text" id="search" name="q" value=""/>
+                <input type="text" id="search" name="q" value="${query}"/>
             </div>
             <div class="button-result">
-                <button class="lsb" value="search" aria-label=" Ploomber" name="btnG" type="submit">
+                <button class="lsb" value="ua.tifoha.search" aria-label=" Ploomber" name="btnG" type="submit">
                     <span class="sbico"></span>
                 </button>
             </div>
@@ -45,7 +45,7 @@
                     <div class="result-0">
                         <h3><a href="${result.url}">${result.title}</a></h3>
                         <p class="link">${result.url}</p>
-                        <p>${result.snippet}</p>
+                        <p>${result.content}</p>
                     </div>
                 </c:forEach>
             </div>

@@ -62,13 +62,13 @@
 <%--&lt;%&ndash;--%>
 <%--Created by IntelliJ IDEA.--%>
 <%--User: Vitaly--%>
-<%--Date: 03.09.2016--%>
+<%--Date: 11.09.2016.--%>
 <%--Time: 20:18--%>
 <%--To change this template use File | Settings | File Templates.--%>
 <%--&ndash;%&gt;--%>
 <%--&lt;%&ndash;<%@ page contentType="text/html;charset=UTF-8" language="java" %>&ndash;%&gt;--%>
 <%--<%@taglib uri="http://www.springframework.org/tags" prefix="spring" %>--%>
-<%--<spring:message code="button.search" var="buttonSearch"/>--%>
+<%--<spring:message code="button.ua.tifoha.search" var="buttonSearch"/>--%>
 <%--<!DOCTYPE html>--%>
 <%--<html>--%>
 
@@ -121,10 +121,10 @@
 <%--&lt;%&ndash;<title>Ploombus</title>&ndash;%&gt;--%>
 <%--&lt;%&ndash;</head>&ndash;%&gt;--%>
 <%--&lt;%&ndash;<body>&ndash;%&gt;--%>
-<%--&lt;%&ndash;<form target="/search" method="post">&ndash;%&gt;--%>
-<%--&lt;%&ndash;<div><spring:message code="label.search"/></div>&ndash;%&gt;--%>
+<%--&lt;%&ndash;<form target="/ua.tifoha.search" method="post">&ndash;%&gt;--%>
+<%--&lt;%&ndash;<div><spring:message code="label.ua.tifoha.search"/></div>&ndash;%&gt;--%>
 <%--&lt;%&ndash;<div><input name="q"></div>&ndash;%&gt;--%>
-<%--&lt;%&ndash;<div><input type="submit" name="search" value="${buttonSearch}"></div>&ndash;%&gt;--%>
+<%--&lt;%&ndash;<div><input type="submit" name="ua.tifoha.search" value="${buttonSearch}"></div>&ndash;%&gt;--%>
 <%--&lt;%&ndash;</form>&ndash;%&gt;--%>
 <%--&lt;%&ndash;</body>&ndash;%&gt;--%>
 <%--&lt;%&ndash;</html>&ndash;%&gt;--%>

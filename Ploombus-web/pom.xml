@@ -13,7 +13,7 @@
     <properties>
         <!--<hibernate.version>3.6.9.Final</hibernate.version>-->
         <!--<org.aspectj-version>1.7.4</org.aspectj-version>-->
-        <org.slf4j-version>1.7.21</org.slf4j-version>
+        <!--<org.slf4j-version>1.7.21</org.slf4j-version>-->
     </properties>
 
     <dependencies>
@@ -156,47 +156,70 @@
         <!--<version>${org.aspectj-version}</version>-->
         <!--</dependency>-->
 
-        <!-- Logging -->
+        <!--&lt;!&ndash; Logging &ndash;&gt;-->
+        <!--<dependency>-->
+            <!--<groupId>org.slf4j</groupId>-->
+            <!--<artifactId>slf4j-api</artifactId>-->
+            <!--<version>${org.slf4j-version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.slf4j</groupId>-->
+            <!--<artifactId>jcl-over-slf4j</artifactId>-->
+            <!--<version>${org.slf4j-version}</version>-->
+            <!--<scope>runtime</scope>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.slf4j</groupId>-->
+            <!--<artifactId>slf4j-log4j12</artifactId>-->
+            <!--<version>${org.slf4j-version}</version>-->
+            <!--<scope>runtime</scope>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>log4j</groupId>-->
+            <!--<artifactId>log4j</artifactId>-->
+            <!--<version>1.2.17</version>-->
+            <!--&lt;!&ndash;<exclusions>&ndash;&gt;-->
+            <!--&lt;!&ndash;<exclusion>&ndash;&gt;-->
+            <!--&lt;!&ndash;<groupId>javax.mail</groupId>&ndash;&gt;-->
+            <!--&lt;!&ndash;<artifactId>mail</artifactId>&ndash;&gt;-->
+            <!--&lt;!&ndash;</exclusion>&ndash;&gt;-->
+            <!--&lt;!&ndash;<exclusion>&ndash;&gt;-->
+            <!--&lt;!&ndash;<groupId>javax.jms</groupId>&ndash;&gt;-->
+            <!--&lt;!&ndash;<artifactId>jms</artifactId>&ndash;&gt;-->
+            <!--&lt;!&ndash;</exclusion>&ndash;&gt;-->
+            <!--&lt;!&ndash;<exclusion>&ndash;&gt;-->
+            <!--&lt;!&ndash;<groupId>com.sun.jdmk</groupId>&ndash;&gt;-->
+            <!--&lt;!&ndash;<artifactId>jmxtools</artifactId>&ndash;&gt;-->
+            <!--&lt;!&ndash;</exclusion>&ndash;&gt;-->
+            <!--&lt;!&ndash;<exclusion>&ndash;&gt;-->
+            <!--&lt;!&ndash;<groupId>com.sun.jmx</groupId>&ndash;&gt;-->
+            <!--&lt;!&ndash;<artifactId>jmxri</artifactId>&ndash;&gt;-->
+            <!--&lt;!&ndash;</exclusion>&ndash;&gt;-->
+            <!--&lt;!&ndash;</exclusions>&ndash;&gt;-->
+            <!--&lt;!&ndash;<scope>runtime</scope>&ndash;&gt;-->
+        <!--</dependency>-->
+        <dependency>
+            <groupId>ua.tifoha</groupId>
+            <artifactId>search-engine-lucene</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <!--<exclusions>-->
+                <!--<exclusion>-->
+                    <!--<groupId>org.apache.httpcomponents</groupId>-->
+                    <!--<artifactId>httpclient</artifactId>-->
+                <!--</exclusion>-->
+            <!--</exclusions>-->
+        </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>${org.slf4j-version}</version>
+            <version>1.7.10</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-            <version>${org.slf4j-version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>${org.slf4j-version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
-            <!--<exclusions>-->
-            <!--<exclusion>-->
-            <!--<groupId>javax.mail</groupId>-->
-            <!--<artifactId>mail</artifactId>-->
-            <!--</exclusion>-->
-            <!--<exclusion>-->
-            <!--<groupId>javax.jms</groupId>-->
-            <!--<artifactId>jms</artifactId>-->
-            <!--</exclusion>-->
-            <!--<exclusion>-->
-            <!--<groupId>com.sun.jdmk</groupId>-->
-            <!--<artifactId>jmxtools</artifactId>-->
-            <!--</exclusion>-->
-            <!--<exclusion>-->
-            <!--<groupId>com.sun.jmx</groupId>-->
-            <!--<artifactId>jmxri</artifactId>-->
-            <!--</exclusion>-->
-            <!--</exclusions>-->
-            <!--<scope>runtime</scope>-->
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.1.2</version>
+            <!--<scope>test</scope>-->
         </dependency>
 
         <!--&lt;!&ndash; @Inject &ndash;&gt;-->
@@ -233,27 +256,27 @@
             <version>1.2</version>
         </dependency>
 
-        <dependency>
-            <groupId>ua.tifoha</groupId>
-            <artifactId>search-engine</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.httpcomponents</groupId>-->
+            <!--<artifactId>httpclient</artifactId>-->
+            <!--<version>4.2.6</version>-->
+        <!--</dependency>-->
 
-        <dependency>
-            <groupId>org.apache.tika</groupId>
-            <artifactId>tika-core</artifactId>
-            <version>1.13</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.tika</groupId>
-            <artifactId>tika-parsers</artifactId>
-            <version>1.13</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.tika</groupId>
-            <artifactId>tika-langdetect</artifactId>
-            <version>1.13</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.tika</groupId>-->
+            <!--<artifactId>tika-core</artifactId>-->
+            <!--<version>1.13</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.tika</groupId>-->
+            <!--<artifactId>tika-parsers</artifactId>-->
+            <!--<version>1.13</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.tika</groupId>-->
+            <!--<artifactId>tika-langdetect</artifactId>-->
+            <!--<version>1.13</version>-->
+        <!--</dependency>-->
 
         <!-- Test -->
         <dependency>
