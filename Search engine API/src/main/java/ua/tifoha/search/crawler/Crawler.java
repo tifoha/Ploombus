@@ -1,4 +1,4 @@
-package ua.tifoha.search.indexer.crawler;
+package ua.tifoha.search.crawler;
 
 import ua.tifoha.search.Configurable;
 import ua.tifoha.search.exception.CrawlerClosingException;

@@ -1,6 +1,8 @@
 package ua.tifoha.search.searcher;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -12,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.tifoha.search.AbstractConfigurableClass;
 import ua.tifoha.search.Field;
+import ua.tifoha.search.LuceneSearchEngineEnvironment;
 import ua.tifoha.search.exception.IndexDirectoryException;
 import ua.tifoha.search.exception.QueryParseException;
 import ua.tifoha.search.exception.SearchEngineException;
@@ -19,7 +22,10 @@ import ua.tifoha.search.exception.SearcherClosingException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static ua.tifoha.search.Field.*;
 
@@ -29,67 +35,95 @@ import static ua.tifoha.search.Field.*;
 public class LuceneSearcher extends AbstractConfigurableClass<SearcherConfiguration> implements Searcher {
     private static final Logger LOGGER = LoggerFactory.getLogger(LuceneSearcher.class);
 
-    private final Analyzer analyzer;
-    private final Directory directory;
-    private final IndexReader indexReader;
+    protected class SearchResultRowMapper implements Function<ScoreDoc, SearchResultRow> {
+        private String contentFieldName = Field.CONTENT.name();
+        private final Highlighter highlighter;
+        private final IndexSearcher searcher;
 
-    public LuceneSearcher(SearcherConfiguration config, Directory directory, Analyzer analyzer) throws IndexDirectoryException {
-        super(config);
-        this.directory = directory;
-        this.analyzer = analyzer;
+
+        public SearchResultRowMapper(IndexSearcher searcher, Query luceneQuery, int fragmentLength) {
+            this.searcher = searcher;
+            QueryScorer queryScorer = new QueryScorer(luceneQuery, contentFieldName);
+            Fragmenter fragmenter = new SimpleSpanFragmenter(queryScorer, fragmentLength);
+            this.highlighter = new Highlighter(queryScorer); // Set the best scorer fragments
+            this.highlighter.setTextFragmenter(fragmenter); // Set fragment to highlight
+        }
+
+        @Override
+        public SearchResultRow apply(ScoreDoc scoreDoc) {
+            try {
+                Document doc = searcher.doc(scoreDoc.doc);
+                String text = doc.get(contentFieldName);
+                TokenStream tokenStream = TokenSources.getTokenStream(contentFieldName, text, analyzer);
+                String fragment = highlighter.getBestFragment(tokenStream, text);
+                BasicSearchResult.BasicSearchResultRow searchResultRow = new BasicSearchResult.BasicSearchResultRow();
+                searchResultRow.setUrl(doc.get(Field.URL.name()));
+                searchResultRow.setTitle(doc.get(Field.TITLE.name()));
+                searchResultRow.setContent(fragment);
+                return searchResultRow;
+            } catch (IOException e) {
+                LOGGER.error(e.getMessage());
+            } catch (InvalidTokenOffsetsException e) {
+                LOGGER.error(e.getMessage());
+            }
+            return null;
+        }
+    }
+
+    private final Analyzer analyzer;
+    private final SearcherManager searcherManager;
+
+    public LuceneSearcher(LuceneSearchEngineEnvironment env) throws IndexDirectoryException {
+        super(env.getConfig());
+        this.analyzer = env.getAnalyzer();
         try {
-            indexReader = DirectoryReader.open(directory);
+            searcherManager = new SearcherManager(env.getIndexWriter(), new SearcherFactory());
         } catch (IOException e) {
-            LOGGER.error(e.toString());
+            LOGGER.error(e.getMessage());
             throw new IndexDirectoryException(e);
         }
     }
 
-    //    @Override
-//    public List<SearchResultImpl> findAll(SearchQuery query) {
-//        List<SearchResultImpl> result = find(query, 0, config.getMaxNumberOfResults());
-//        return result;
-//    }
-
     @Override
     public SearchResult find(SearchQuery query) {
-        List<SearchResultRow> result = new ArrayList<>(config.getMaxNumberOfResults());
+        int pageNumber = query.getPageNumber();
+        int pageSize = query.getPageSize();
+        int maxNumberOfResults = Math.min(config.getMaxNumberOfResults(), (pageNumber + 1) * pageSize);
         String queryString = query.getQueryString();
+        IndexSearcher searcher = null;
         try {
+            searcherManager.maybeRefresh();
+            searcher = searcherManager.acquire();
             Query luceneQuery = getQuery(queryString);
-            IndexSearcher searcher = new IndexSearcher(indexReader);
-            String field = Field.CONTENT.toString();
-            QueryScorer queryScorer = new QueryScorer(luceneQuery, field);
-            Fragmenter fragmenter = new SimpleSpanFragmenter(queryScorer, 500);
-            Highlighter highlighter = new Highlighter(queryScorer); // Set the best scorer fragments
-            highlighter.setTextFragmenter(fragmenter); // Set fragment to highlight
 
-            TopScoreDocCollector collector = TopScoreDocCollector.create(config.getMaxNumberOfResults());
+
+            TopScoreDocCollector collector = TopScoreDocCollector.create(maxNumberOfResults);
             searcher.search(luceneQuery, collector);
 
-//            int start = collector.getTotalHits() / query.getPageSize() * query.getPageNumber();
-//            TopDocs topDocs = collector.topDocs(start, query.getPageSize());
+            int startIndex = pageNumber * pageSize;
+            TopDocs topDocs = collector.topDocs(startIndex, pageSize);
+            Function<ScoreDoc, SearchResultRow> mapper = new SearchResultRowMapper(searcher, luceneQuery, query.getFragmentLength());
 
-//            for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
-//                Document doc = searcher.doc(scoreDoc.doc);
-//                String text = doc.get(field);
-//                TokenStream tokenStream = TokenSources.getTokenStream(field, text, analyzer);
-//                String fragment = highlighter.getBestFragment(tokenStream, text);
-//                BasicSearchResultRow searchResult = new BasicSearchResultRow(doc);
-//                searchResult.setContent(fragment);
-//                result.add(searchResult);
-//            }
+            List<SearchResultRow> resultRows = Arrays.stream(topDocs.scoreDocs)
+                    .map(mapper).filter(row -> row != null)
+                    .collect(Collectors.toList());
+            return new BasicSearchResult(pageNumber, pageSize, collector.getTotalHits(), resultRows);
 
-            return new BasicSearchResult(searcher, collector, highlighter, analyzer);
         } catch (ParseException e) {
-            LOGGER.error(e.toString());
+            LOGGER.error(e.getMessage());
             throw new QueryParseException(e);
         } catch (IOException e) {
-            LOGGER.error(e.toString());
+            LOGGER.error(e.getMessage());
             throw new IndexDirectoryException(e);
-//        } catch (InvalidTokenOffsetsException e) {
-//            LOGGER.error(e.toString());
-//            throw new SearchEngineException(e);
+        } finally {
+            if (searcher != null) {
+                try {
+                    searcherManager.release(searcher);
+                } catch (IOException e) {
+                    LOGGER.error(e.getMessage());
+                    throw new SearchEngineException();
+                }
+            }
         }
     }
 
@@ -106,11 +140,11 @@ public class LuceneSearcher extends AbstractConfigurableClass<SearcherConfigurat
     }
 
     @Override
-    public void close() throws SearcherClosingException{
+    public void close() throws SearcherClosingException {
         LOGGER.info("Closing searcher...");
         try {
-            LOGGER.info("Closing index reader...");
-            indexReader.close();
+            LOGGER.info("Closing searcher manager...");
+            searcherManager.close();
             LOGGER.info("Index reader closed.");
         } catch (IOException e) {
             throw new SearchEngineException(e);

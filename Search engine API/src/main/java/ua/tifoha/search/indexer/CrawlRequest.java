@@ -1,8 +1,8 @@
 package ua.tifoha.search.indexer;
 
-import ua.tifoha.search.indexer.crawler.CrawlerInfo;
-import ua.tifoha.search.indexer.crawler.Link;
-import ua.tifoha.search.indexer.crawler.WebPage;
+import ua.tifoha.search.crawler.CrawlerInfo;
+import ua.tifoha.search.crawler.Link;
+import ua.tifoha.search.crawler.WebPage;
 
 import java.util.function.BiPredicate;
 
@@ -20,7 +20,4 @@ public interface CrawlRequest {
 
     BiPredicate<WebPage, Link> getPageFilter();
 
-    default void afterFinish(CrawlerInfo crawlerInfo) {
-        //do nothing
-    }
 }

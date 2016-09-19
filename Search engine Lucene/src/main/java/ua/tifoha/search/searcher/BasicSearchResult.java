@@ -1,124 +1,68 @@
 package ua.tifoha.search.searcher;
 
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.search.TopScoreDocCollector;
-import org.apache.lucene.search.highlight.Highlighter;
-import org.apache.lucene.search.highlight.TokenSources;
-import ua.tifoha.search.exception.SearchEngineException;
-
-import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.util.Spliterator.SIZED;
-import static ua.tifoha.search.Field.CONTENT;
-import static ua.tifoha.search.Field.TITLE;
-import static ua.tifoha.search.Field.URL;
+import java.util.stream.Stream;
 
 /**
  * Created by Vitaly on 11.09.2016.
  */
 public class BasicSearchResult implements SearchResult {
-    private final TopScoreDocCollector collector;
-    private final IndexSearcher searcher;
-    private final Highlighter highlighter;
-    private final Analyzer analyzer;
+    private final int pageNumber;
+    private final int pageSize;
+    private final int totalHits;
+    private final int totalPages;
+    private final Collection<SearchResultRow> resultRows;
 
-    public BasicSearchResult(IndexSearcher searcher, TopScoreDocCollector collector, Highlighter highlighter, Analyzer analyzer) {
-        this.searcher = searcher;
-        this.collector = collector;
-        this.highlighter = highlighter;
-        this.analyzer = analyzer;
+    public BasicSearchResult(int pageNumber, int pageSize, int totalHits, Collection<SearchResultRow> resultRows) {
+        this.pageNumber = pageNumber;
+        this.pageSize = pageSize;
+        this.totalHits = totalHits;
+        this.totalPages = (int) Math.ceil((double) totalHits / pageSize);
+        this.resultRows = new ArrayList<>(resultRows);
     }
 
     @Override
-    public List<SearchResultRow> getPortion(int pageNumber, int pageSize) {
-        int start = collector.getTotalHits() / pageSize * pageNumber;
-        List<SearchResultRow> result = getSearchResults(start, pageSize);
-
-        return result;
+    public Collection<SearchResultRow> getRows() {
+        return resultRows;
     }
 
     @Override
-    public List<SearchResultRow> getAll() {
-        List<SearchResultRow> result = getSearchResults(0, collector.getTotalHits());
-
-        return result;
+    public Stream<SearchResultRow> getRowStream() {
+        return resultRows.stream();
     }
 
     @Override
-    public int size() {
-        return collector.getTotalHits();
-    }
-
-    private List<SearchResultRow> getSearchResults(int start, int howMany) {
-        TopDocs topDocs = collector.topDocs(start, howMany);
-//        Function<ScoreDoc, SearchResulRow> resultMapper =
-
-        return Arrays.stream(topDocs.scoreDocs).map(this::getSearchRow).collect(Collectors.toList());
-    }
-
-    private SearchResultRow getSearchRow(ScoreDoc scoreDoc) {
-        try {
-            Document doc = searcher.doc(scoreDoc.doc);
-            return new BasicSearchResultRow(doc);
-        } catch (IOException e) {
-            throw new SearchEngineException(e);
-        }
+    public int getPageNumber() {
+        return pageNumber;
     }
 
     @Override
-    public Iterator<SearchResultRow> iterator() {
-        return new Iterator<SearchResultRow>() {
-            int index;
-
-            @Override
-            public boolean hasNext() {
-                return index < collector.getTotalHits();
-            }
-
-            @Override
-            public SearchResultRow next() {
-                ScoreDoc scoreDoc = collector.topDocs().scoreDocs[index];
-                return getSearchRow(scoreDoc);
-            }
-        };
+    public int getPageSize() {
+        return pageSize;
     }
 
     @Override
-    public Spliterator<SearchResultRow> spliterator() {
-        return Spliterators.spliterator(iterator(), collector.getTotalHits(), SIZED);
+    public int getTotalPages() {
+        return totalPages;
     }
 
-    /**
-     * Created by Vitaly on 11.09.2016.
-     */
-    private class BasicSearchResultRow implements SearchResultRow {
+    @Override
+    public int getTotalHits() {
+        return totalHits;
+    }
+
+    public static class BasicSearchResultRow implements SearchResultRow {
         private String url;
         private String title;
         private String content;
+
+        public BasicSearchResultRow() {
+        }
 
         public BasicSearchResultRow(String url, String title, String content) {
             this.url = url;
             this.title = title;
             this.content = content;
-        }
-
-        public BasicSearchResultRow(Document doc) {
-            url = doc.get(URL.name());
-            title = doc.get(TITLE.name());
-            String text = doc.get(CONTENT.name());
-            TokenStream tokenStream = TokenSources.getTokenStream(CONTENT.name(), text, analyzer);
-            try {
-                content = highlighter.getBestFragment(tokenStream, text);
-            } catch (Exception e) {
-                content = text;
-            }
         }
 
         @Override

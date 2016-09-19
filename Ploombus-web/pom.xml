@@ -11,44 +11,9 @@
     <packaging>war</packaging>
     <artifactId>ploombus-web</artifactId>
     <properties>
-        <!--<hibernate.version>3.6.9.Final</hibernate.version>-->
-        <!--<org.aspectj-version>1.7.4</org.aspectj-version>-->
-        <!--<org.slf4j-version>1.7.21</org.slf4j-version>-->
     </properties>
 
     <dependencies>
-
-        <!--&lt;!&ndash;Apache Tiles Tamplating&ndash;&gt;-->
-        <!--<dependency>-->
-        <!--<groupId>org.apache.tiles</groupId>-->
-        <!--<artifactId>tiles-api</artifactId>-->
-        <!--<version>${tiles-version}</version>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-        <!--<groupId>org.apache.tiles</groupId>-->
-        <!--<artifactId>tiles-core</artifactId>-->
-        <!--<version>${tiles-version}</version>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-        <!--<groupId>org.apache.tiles</groupId>-->
-        <!--<artifactId>tiles-jsp</artifactId>-->
-        <!--<version>${tiles-version}</version>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-        <!--<groupId>org.apache.tiles</groupId>-->
-        <!--<artifactId>tiles-servlet</artifactId>-->
-        <!--<version>${tiles-version}</version>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-        <!--<groupId>org.apache.tiles</groupId>-->
-        <!--<artifactId>tiles-template</artifactId>-->
-        <!--<version>${tiles-version}</version>-->
-        <!--</dependency>-->
-
         <!-- Spring -->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -108,106 +73,10 @@
             <artifactId>spring-test</artifactId>
             <version>${springframework-version}</version>
         </dependency>
-
-        <!--&lt;!&ndash; Hibernate &ndash;&gt;-->
-        <!--<dependency>-->
-        <!--<groupId>org.hibernate</groupId>-->
-        <!--<artifactId>hibernate-core</artifactId>-->
-        <!--<version>${hibernate.version}</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-        <!--<groupId>org.hibernate</groupId>-->
-        <!--<artifactId>hibernate-entitymanager</artifactId>-->
-        <!--<version>${hibernate.version}</version>-->
-        <!--</dependency>-->
-
-        <!--&lt;!&ndash;Persistence&ndash;&gt;-->
-        <!--<dependency>-->
-        <!--<groupId>javax.persistence</groupId>-->
-        <!--<artifactId>persistence-api</artifactId>-->
-        <!--<version>1.0.2</version>-->
-        <!--</dependency>-->
-
-        <!--&lt;!&ndash;Dinamic code injections&ndash;&gt;-->
-        <!--<dependency>-->
-        <!--<groupId>cglib</groupId>-->
-        <!--<artifactId>cglib</artifactId>-->
-        <!--<version>2.2.2</version>-->
-        <!--</dependency>-->
-
-        <!--&lt;!&ndash;Connection Pool&ndash;&gt;-->
-        <!--<dependency>-->
-        <!--<groupId>org.apache.commons</groupId>-->
-        <!--<artifactId>commons-dbcp2</artifactId>-->
-        <!--<version>2.0.1</version>-->
-        <!--</dependency>-->
-
-        <!--&lt;!&ndash;MySQL&ndash;&gt;-->
-        <!--<dependency>-->
-        <!--<groupId>mysql</groupId>-->
-        <!--<artifactId>mysql-connector-java</artifactId>-->
-        <!--<version>5.1.34</version>-->
-        <!--</dependency>-->
-
-        <!--&lt;!&ndash; AspectJ &ndash;&gt;-->
-        <!--<dependency>-->
-        <!--<groupId>org.aspectj</groupId>-->
-        <!--<artifactId>aspectjrt</artifactId>-->
-        <!--<version>${org.aspectj-version}</version>-->
-        <!--</dependency>-->
-
-        <!--&lt;!&ndash; Logging &ndash;&gt;-->
-        <!--<dependency>-->
-            <!--<groupId>org.slf4j</groupId>-->
-            <!--<artifactId>slf4j-api</artifactId>-->
-            <!--<version>${org.slf4j-version}</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.slf4j</groupId>-->
-            <!--<artifactId>jcl-over-slf4j</artifactId>-->
-            <!--<version>${org.slf4j-version}</version>-->
-            <!--<scope>runtime</scope>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.slf4j</groupId>-->
-            <!--<artifactId>slf4j-log4j12</artifactId>-->
-            <!--<version>${org.slf4j-version}</version>-->
-            <!--<scope>runtime</scope>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>log4j</groupId>-->
-            <!--<artifactId>log4j</artifactId>-->
-            <!--<version>1.2.17</version>-->
-            <!--&lt;!&ndash;<exclusions>&ndash;&gt;-->
-            <!--&lt;!&ndash;<exclusion>&ndash;&gt;-->
-            <!--&lt;!&ndash;<groupId>javax.mail</groupId>&ndash;&gt;-->
-            <!--&lt;!&ndash;<artifactId>mail</artifactId>&ndash;&gt;-->
-            <!--&lt;!&ndash;</exclusion>&ndash;&gt;-->
-            <!--&lt;!&ndash;<exclusion>&ndash;&gt;-->
-            <!--&lt;!&ndash;<groupId>javax.jms</groupId>&ndash;&gt;-->
-            <!--&lt;!&ndash;<artifactId>jms</artifactId>&ndash;&gt;-->
-            <!--&lt;!&ndash;</exclusion>&ndash;&gt;-->
-            <!--&lt;!&ndash;<exclusion>&ndash;&gt;-->
-            <!--&lt;!&ndash;<groupId>com.sun.jdmk</groupId>&ndash;&gt;-->
-            <!--&lt;!&ndash;<artifactId>jmxtools</artifactId>&ndash;&gt;-->
-            <!--&lt;!&ndash;</exclusion>&ndash;&gt;-->
-            <!--&lt;!&ndash;<exclusion>&ndash;&gt;-->
-            <!--&lt;!&ndash;<groupId>com.sun.jmx</groupId>&ndash;&gt;-->
-            <!--&lt;!&ndash;<artifactId>jmxri</artifactId>&ndash;&gt;-->
-            <!--&lt;!&ndash;</exclusion>&ndash;&gt;-->
-            <!--&lt;!&ndash;</exclusions>&ndash;&gt;-->
-            <!--&lt;!&ndash;<scope>runtime</scope>&ndash;&gt;-->
-        <!--</dependency>-->
         <dependency>
             <groupId>ua.tifoha</groupId>
             <artifactId>search-engine-lucene</artifactId>
             <version>1.0-SNAPSHOT</version>
-            <!--<exclusions>-->
-                <!--<exclusion>-->
-                    <!--<groupId>org.apache.httpcomponents</groupId>-->
-                    <!--<artifactId>httpclient</artifactId>-->
-                <!--</exclusion>-->
-            <!--</exclusions>-->
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -221,22 +90,12 @@
             <version>1.1.2</version>
             <!--<scope>test</scope>-->
         </dependency>
-
-        <!--&lt;!&ndash; @Inject &ndash;&gt;-->
-        <!--<dependency>-->
-        <!--<groupId>javax.inject</groupId>-->
-        <!--<artifactId>javax.inject</artifactId>-->
-        <!--<version>1</version>-->
-        <!--</dependency>-->
-
         <!-- Jackson -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.8.1</version>
         </dependency>
-
-
         <!-- Servlet -->
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -255,29 +114,6 @@
             <artifactId>jstl</artifactId>
             <version>1.2</version>
         </dependency>
-
-        <!--<dependency>-->
-            <!--<groupId>org.apache.httpcomponents</groupId>-->
-            <!--<artifactId>httpclient</artifactId>-->
-            <!--<version>4.2.6</version>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>org.apache.tika</groupId>-->
-            <!--<artifactId>tika-core</artifactId>-->
-            <!--<version>1.13</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.tika</groupId>-->
-            <!--<artifactId>tika-parsers</artifactId>-->
-            <!--<version>1.13</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.tika</groupId>-->
-            <!--<artifactId>tika-langdetect</artifactId>-->
-            <!--<version>1.13</version>-->
-        <!--</dependency>-->
-
         <!-- Test -->
         <dependency>
             <groupId>junit</groupId>

@@ -4,24 +4,13 @@
              xmlns:beans="http://www.springframework.org/schema/beans"
              xmlns:context="http://www.springframework.org/schema/context"
              xmlns:p="http://www.springframework.org/schema/p"
-             xmlns:util="http://www.springframework.org/schema/util"
-             xmlns:c="http://www.springframework.org/schema/c"
              xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <!--propertyConfigurer-->
-    <beans:bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <beans:property name="locations">
-            <beans:list>
-                <beans:value>/WEB-INF/server.properties</beans:value>
-            </beans:list>
-        </beans:property>
-    </beans:bean>
-
     <beans:bean id="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean"/>
 
-    <!--<beans:bean id="castorMarshaller" class="org.springframework.oxm.castor.CastorMarshaller"/>-->
+    <!--<beans:bean url="castorMarshaller" class="org.springframework.oxm.castor.CastorMarshaller"/>-->
 
     <beans:bean id="cnManager" class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
         <beans:property name="favorPathExtension" value="true"/>
@@ -37,13 +26,6 @@
         </beans:property>
     </beans:bean>
 
-    <!--<annotation-driven content-negotiation-manager="cnManager" conversion-service="conversionService">-->
-    <!--<message-converters>-->
-    <!--<beans:bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/>-->
-    <!--&lt;!&ndash;<beans:bean class="org.springframework.http.converter.xml.MarshallingHttpMessageConverter"&ndash;&gt;-->
-    <!--&lt;!&ndash;p:marshaller-ref="castorMarshaller" p:unmarshaller-ref="castorMarshaller"/>&ndash;&gt;-->
-    <!--</message-converters>-->
-    <!--</annotation-driven>-->
     <annotation-driven/>
 
     <resources mapping="/resources/**" location="/WEB-INF/web-resources/"/>
@@ -67,32 +49,6 @@
     <beans:bean class="org.springframework.web.servlet.i18n.CookieLocaleResolver"
                 id="localeResolver"
                 p:cookieName="locale"/>
-
-    <!--&lt;!&ndash;SEARCH ENGINE&ndash;&gt;-->
-    <!--<beans:bean id="configuration" class="ua.tifoha.search.BasicConfiguration"-->
-                <!--p:indexDirectoryPath="${engine.indexDirectoryPath}"/>-->
-
-    <!--<beans:bean id="engine" class="ua.tifoha.search.LuceneSearchEngine"-->
-                <!--c:config-ref="configuration"-->
-                <!--p:searcher-ref="searcher"-->
-                <!--p:indexer-ref="indexer"/>-->
-                <!--&lt;!&ndash;p:crawler-ref="crawler"&ndash;&gt;-->
-    <!--&lt;!&ndash;&lt;!&ndash;/>&ndash;&gt;&ndash;&gt;-->
-    <!--<beans:bean id="analyzer" factory-bean="engine" factory-method="getAnalyzer"/>-->
-    <!--<beans:bean id="directory" factory-bean="engine" factory-method="getDirectory"/>-->
-
-    <!--<beans:bean id="searcher" class="ua.tifoha.search.searcher.LuceneSearcher"-->
-                <!--c:config-ref="configuration"-->
-                <!--c:analyzer-ref="analyzer"-->
-                <!--c:directory-ref="directory"/>-->
-
-    <!--<beans:bean id="indexer" class="ua.tifoha.search.indexer.LuceneIndexer"-->
-                <!--c:config-ref="configuration"-->
-                <!--c:analyzer-ref="analyzer"-->
-                <!--c:directory-ref="directory"/>-->
-    <!--<beans:bean id="crawler" class="ua.tifoha.search.indexer.crawler.crawler4j.MultiCrawlerControllerDelegate"-->
-                <!--c:config-ref="configuration"-->
-                <!--c:indexer-ref="indexer"/>-->
 
     <context:component-scan base-package="ua.tifoha.controllers"/>
 </beans:beans>

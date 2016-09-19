@@ -7,4 +7,6 @@ import ua.tifoha.search.Configuration;
  */
 public interface IndexerConfiguration extends Configuration {
     long getMaxTimeBeforeTermination();
+
+    int getAutoCommitDocCount();
 }

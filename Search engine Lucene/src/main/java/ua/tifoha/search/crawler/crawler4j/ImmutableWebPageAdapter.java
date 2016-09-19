@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-package ua.tifoha.search.indexer.crawler.crawler4j;
+package ua.tifoha.search.crawler.crawler4j;
 
 import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.parser.ParseData;
 import org.apache.http.Header;
-import ua.tifoha.search.indexer.crawler.Link;
-import ua.tifoha.search.indexer.crawler.WebPage;
+import ua.tifoha.search.crawler.Link;
+import ua.tifoha.search.crawler.WebPage;
 
 public class ImmutableWebPageAdapter implements WebPage {
 

@@ -13,31 +13,32 @@
                   http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 
     <context:annotation-config/>
+
+    <!--propertyConfigurer-->
+    <beans:bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <beans:property name="locations">
+            <beans:list>
+                <beans:value>/WEB-INF/server.properties</beans:value>
+            </beans:list>
+        </beans:property>
+    </beans:bean>
+
+
     <!--SEARCH ENGINE-->
     <beans:bean id="configuration" class="ua.tifoha.search.BasicConfiguration"/>
                 <!--p:indexDirectoryPath="${engine.indexDirectoryPath}"/>-->
 
-    <beans:bean id="engine" class="ua.tifoha.search.LuceneSearchEngine"
-                c:config-ref="configuration"
-                p:searcher-ref="searcher"
-                p:indexer-ref="indexer"/>
-    <!--p:crawler-ref="crawler"-->
-    <!--&lt;!&ndash;/>&ndash;&gt;-->
-    <beans:bean id="analyzer" factory-bean="engine" factory-method="getAnalyzer"/>
-    <beans:bean id="directory" factory-bean="engine" factory-method="getDirectory"/>
+    <beans:bean id="searchEngineEnvironment" class="ua.tifoha.search.LuceneSearchEngineEnvironment"
+                c:config-ref="configuration"/>
 
-    <beans:bean id="searcher" class="ua.tifoha.search.searcher.LuceneSearcher"
-                c:config-ref="configuration"
-                c:analyzer-ref="analyzer"
-                c:directory-ref="directory"/>
+    <beans:bean id="indexer" class="ua.tifoha.search.indexer.LuceneIndexer" c:env-ref="searchEngineEnvironment"/>
 
-    <beans:bean id="indexer" class="ua.tifoha.search.indexer.LuceneIndexer"
-                c:config-ref="configuration"
-                c:analyzer-ref="analyzer"
-                c:directory-ref="directory"/>
-    <beans:bean id="crawler" class="ua.tifoha.search.indexer.crawler.crawler4j.MultiCrawlerControllerDelegate"
+    <beans:bean id="searcher" class="ua.tifoha.search.searcher.LuceneSearcher" c:env-ref="searchEngineEnvironment"/>
+
+    <beans:bean id="crawler" class="ua.tifoha.search.crawler.crawler4j.MultiCrawlerControllerDelegate"
                 c:config-ref="configuration"
                 c:indexer-ref="indexer"/>
+
     <context:component-scan base-package="ua.tifoha"/>
 </beans:beans>
 

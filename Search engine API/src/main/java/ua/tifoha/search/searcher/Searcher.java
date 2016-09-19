@@ -7,8 +7,6 @@ import ua.tifoha.search.exception.SearcherClosingException;
  * Created by Vitaly on 12.09.2016.
  */
 public interface Searcher extends Configurable<SearcherConfiguration>, AutoCloseable {
-//    List<SearchResultImpl> findAll(SearchQuery query);
-
     SearchResult find(SearchQuery query);
 
     @Override

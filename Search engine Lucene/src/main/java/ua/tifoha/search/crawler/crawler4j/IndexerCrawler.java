@@ -1,4 +1,4 @@
-package ua.tifoha.search.indexer.crawler.crawler4j;
+package ua.tifoha.search.crawler.crawler4j;
 
 import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.crawler.WebCrawler;
@@ -6,9 +6,9 @@ import edu.uci.ics.crawler4j.parser.HtmlParseData;
 import edu.uci.ics.crawler4j.url.WebURL;
 import ua.tifoha.search.indexer.BasicIndexerDocument;
 import ua.tifoha.search.indexer.Indexer;
-import ua.tifoha.search.indexer.crawler.BasicCrawlerInfo;
-import ua.tifoha.search.indexer.crawler.Link;
-import ua.tifoha.search.indexer.crawler.WebPage;
+import ua.tifoha.search.crawler.BasicCrawlerInfo;
+import ua.tifoha.search.crawler.Link;
+import ua.tifoha.search.crawler.WebPage;
 
 import java.util.Set;
 import java.util.function.BiPredicate;
@@ -36,11 +36,11 @@ public class IndexerCrawler extends WebCrawler {
     public void visit(Page page) {
         String url = page.getWebURL().getURL();
         logger.info("Visited: {}", url);
-        status.incProcessedPages();
 
         if (page.getParseData() instanceof HtmlParseData) {
             HtmlParseData parseData = (HtmlParseData) page.getParseData();
             Set<WebURL> links = parseData.getOutgoingUrls();
+            status.incProcessedPages();
             status.incTotalLinks(links.size());
             status.incTotalDataSize(page.getContentData().length);
             String title = parseData.getTitle();
@@ -69,7 +69,6 @@ public class IndexerCrawler extends WebCrawler {
     @Override
     public void onBeforeExit() {
         dumpMyData();
-        indexer.flush();
     }
 
     public void dumpMyData() {

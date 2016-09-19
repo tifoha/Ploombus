@@ -1,8 +1,8 @@
 package ua.tifoha.search;
 
 import ua.tifoha.search.exception.CrawlerException;
-import ua.tifoha.search.indexer.crawler.Link;
-import ua.tifoha.search.indexer.crawler.WebPage;
+import ua.tifoha.search.crawler.Link;
+import ua.tifoha.search.crawler.WebPage;
 
 import java.util.function.BiPredicate;
 
@@ -12,7 +12,7 @@ import java.util.function.BiPredicate;
 public class BasicConfiguration implements SearchEngineConfiguration {
     ///////////////////////////////////////////////SEARCH ENGINE CONFIG///////////////////////////////////////////////////////////
     //path to index DB
-    private String indexDirectoryPath = "indexes";
+    private String indexDirectoryPath = "ploombus/indexes";
 
     ///////////////////////////////////////////////SEARCHER CONFIG////////////////////////////////////////////////////////////////
     //restriction to max result count
@@ -23,7 +23,7 @@ public class BasicConfiguration implements SearchEngineConfiguration {
      * The folder which will be used by crawler for storing the intermediate
      * crawl data. The content of this folder should not be modified manually.
      */
-    private String crawlStorageFolder = "tmp/crawlers";
+    private String crawlStorageFolder = "ploombus/crawlers";
 
     /**
      * The number of concurrent threads which will be used by crawler for crawling the web
@@ -168,6 +168,9 @@ public class BasicConfiguration implements SearchEngineConfiguration {
 
     /////////////////////////////////////////////////////////INDEXER CONFIG////////////////////////////////////////////////////
     private long maxTimeBeforeTermination = 3000;
+
+    //when should commit changes
+    private int autoCommitDocCount = 200;
 
     @Override
     public void validate() {
@@ -425,6 +428,15 @@ public class BasicConfiguration implements SearchEngineConfiguration {
     @Override
     public long getMaxTimeBeforeTermination() {
         return maxTimeBeforeTermination;
+    }
+
+    @Override
+    public int getAutoCommitDocCount() {
+        return autoCommitDocCount;
+    }
+
+    public void setAutoCommitDocCount(int autoCommitDocCount) {
+        this.autoCommitDocCount = autoCommitDocCount;
     }
 
     public void setMaxTimeBeforeTermination(long maxTimeBeforeTermination) {

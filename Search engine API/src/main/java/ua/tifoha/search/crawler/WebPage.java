@@ -1,4 +1,4 @@
-package ua.tifoha.search.indexer.crawler;
+package ua.tifoha.search.crawler;
 
 
 /**

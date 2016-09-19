@@ -1,14 +1,22 @@
 package ua.tifoha.search.searcher;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Created by Vitaly on 12.09.2016.
  */
-public interface SearchResult extends Iterable<SearchResultRow> {
-    List<SearchResultRow> getPortion(int pageNumber, int pageSize);
+public interface SearchResult {
+    Collection<SearchResultRow> getRows();
 
-    List<SearchResultRow> getAll();
+    Stream<SearchResultRow> getRowStream();
 
-    int size();
+    int getPageNumber();
+
+    int getPageSize();
+
+    int getTotalPages();
+
+    int getTotalHits();
 }

@@ -9,4 +9,6 @@ public interface SearchQuery {
     int getPageNumber();
 
     int getPageSize();
+
+    int getFragmentLength();
 }

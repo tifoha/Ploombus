@@ -11,6 +11,7 @@ import org.apache.lucene.store.Directory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.tifoha.search.AbstractConfigurableClass;
+import ua.tifoha.search.LuceneSearchEngineEnvironment;
 import ua.tifoha.search.exception.IndexDirectoryException;
 import ua.tifoha.search.exception.IndexerClosingException;
 import ua.tifoha.search.exception.IndexerException;
@@ -20,7 +21,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.*;
-import java.util.concurrent.locks.ReentrantLock;
 
 import static ua.tifoha.search.Field.*;
 
@@ -31,31 +31,20 @@ public class LuceneIndexer extends AbstractConfigurableClass<IndexerConfiguratio
     private static final Logger LOGGER = LoggerFactory.getLogger(LuceneIndexer.class);
     private static final Runnable DEFAULT_CALLBACK = () -> {};
 
-    private final Analyzer analyzer;
-    private final Directory directory;
+    private final CyclicCommitter committer;
     private final IndexWriter indexWriter;
     private final ExecutorService indexTaskExecutor = Executors.newSingleThreadExecutor();
 
-    public LuceneIndexer(IndexerConfiguration config, Directory directory, Analyzer analyzer) throws IndexDirectoryException {
-        super(config);
-        this.analyzer = analyzer;
-        this.directory = directory;
-
-        IndexWriterConfig indexWriterConfig = new IndexWriterConfig(this.analyzer);
-        try {
-            indexWriter = new IndexWriter(this.directory, indexWriterConfig);
-        } catch (IOException e) {
-            LOGGER.error(e.toString());
-            throw new IndexDirectoryException(e);
-        }
+    public LuceneIndexer(LuceneSearchEngineEnvironment env) throws IndexDirectoryException {
+        super(env.getConfig());
+        committer = new CyclicCommitter(config.getAutoCommitDocCount());
+        this.indexWriter = env.getIndexWriter();
     }
 
     @Override
-    public IndexerResponse indexAsync(IndexerDocument request) {
+    public void indexAsync(IndexerDocument request) {
         LuceneIndexWorker luceneIndexWorker = new LuceneIndexWorker(request);
         indexTaskExecutor.submit(luceneIndexWorker);
-
-        return luceneIndexWorker;
     }
 
     @Override
@@ -63,9 +52,19 @@ public class LuceneIndexer extends AbstractConfigurableClass<IndexerConfiguratio
         Document doc = convertToDocument(request);
         try {
             indexWriter.addDocument(doc);
+            committer.arrive();
         } catch (IOException e) {
-            LOGGER.error(e.toString());
+            LOGGER.error(e.getMessage());
             throw new IndexerException(e);
+        }
+    }
+
+    @Override
+    public void commit() {
+        try {
+            indexWriter.commit();
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage());
         }
     }
 
@@ -99,15 +98,6 @@ public class LuceneIndexer extends AbstractConfigurableClass<IndexerConfiguratio
         LOGGER.info("Indexer closed.");
     }
 
-    @Override
-    public void flush() {
-        try {
-            indexWriter.flush();
-        } catch (IOException e) {
-            throw new IndexerException(e);
-        }
-    }
-
     private Document convertToDocument(IndexerDocument request) {
         Document doc = new Document();
         // use a string field for course_code because we don't want it tokenized
@@ -118,11 +108,9 @@ public class LuceneIndexer extends AbstractConfigurableClass<IndexerConfiguratio
         return doc;
     }
 
-    private class LuceneIndexWorker extends AbstractWorker implements IndexerResponse<Object> {
-        private final Object RESULT = new Object();
+    protected class LuceneIndexWorker extends AbstractWorker {
         private final Runnable callback;
         private final IndexerDocument request;
-        private final ReentrantLock lock = new ReentrantLock();
 
         public LuceneIndexWorker(String name, IndexerDocument request, Runnable callback) {
             super(name);
@@ -141,16 +129,9 @@ public class LuceneIndexer extends AbstractConfigurableClass<IndexerConfiguratio
 
         @Override
         public void doWork() throws InterruptedException, Exception {
-            lock.lock();
-            try {
-                Document doc = convertToDocument(request);
-                indexWriter.addDocument(doc);
-                indexWriter.commit();
-                LOGGER.info("Page \"{}\" was successfully indexed", request.getUrl());
-                stop();
-            } finally {
-                lock.unlock();
-            }
+            index(request);
+            LOGGER.info("Page \"{}\" was successfully added to index", request.getUrl());
+            stop();
         }
 
         @Override
@@ -159,37 +140,18 @@ public class LuceneIndexer extends AbstractConfigurableClass<IndexerConfiguratio
             callback.run();
         }
 
-        @Override
-        public boolean cancel(boolean mayInterruptIfRunning) {
-            stop();
-            return true;
+    }
+
+    protected class CyclicCommitter extends Phaser {
+        public CyclicCommitter(int minDocCount) {
+            super(minDocCount);
         }
 
         @Override
-        public boolean isCancelled() {
-            return cancelled;
-        }
-
-        @Override
-        public Object get() throws InterruptedException, ExecutionException {
-            lock.lock();
-            try {
-                return RESULT;
-            } finally {
-                lock.unlock();
-            }
-        }
-
-        @Override
-        public Object get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-            try {
-                if (!lock.tryLock(timeout, unit)) {
-                    throw new TimeoutException();
-                }
-                return RESULT;
-            } finally {
-                lock.unlock();
-            }
+        protected boolean onAdvance(int phase, int registeredParties) {
+            commit();
+            LOGGER.info("{} documents successfully committed.", registeredParties);
+            return false;
         }
     }
 }

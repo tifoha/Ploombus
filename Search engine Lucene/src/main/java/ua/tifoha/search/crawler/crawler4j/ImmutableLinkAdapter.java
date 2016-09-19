@@ -15,22 +15,14 @@
  * limitations under the License.
  */
 
-package ua.tifoha.search.indexer.crawler.crawler4j;
+package ua.tifoha.search.crawler.crawler4j;
 
 import edu.uci.ics.crawler4j.url.WebURL;
-import ua.tifoha.search.indexer.crawler.Link;
+import ua.tifoha.search.crawler.Link;
 
 public class ImmutableLinkAdapter implements Link {
 
-  //  private String url;
   private final Link parent;
-//  private short depth;
-//  private String domain;
-//  private String subDomain;
-//  private String path;
-//  private String anchor;
-//  private byte priority;
-//  private String tag;
   private final WebURL webURL;
 
   public ImmutableLinkAdapter(WebURL webURL) {
@@ -40,7 +32,7 @@ public class ImmutableLinkAdapter implements Link {
 
 
   /**
-   * @return unique document id assigned to this Url.
+   * @return unique document url assigned to this Url.
    */
   @Override
   public Link getParent() {

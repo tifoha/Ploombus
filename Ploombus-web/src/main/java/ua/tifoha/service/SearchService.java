@@ -2,12 +2,10 @@ package ua.tifoha.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ua.tifoha.search.searcher.BasicSearchQuery;
-import ua.tifoha.search.searcher.SearchResultRow;
-import ua.tifoha.search.searcher.SearchResult;
-import ua.tifoha.search.searcher.Searcher;
+import ua.tifoha.search.searcher.*;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -18,10 +16,13 @@ public class SearchService {
     @Autowired
     private Searcher searcher;
 
-    public List<SearchResultRow> find(String queryString) {
-        List<SearchResultRow> resulRowList = new ArrayList<>();
+    public SearchResult find(String queryString) {
         SearchResult result = searcher.find(new BasicSearchQuery(queryString));
-        resulRowList = result.getAll();
-        return resulRowList;
+        return result;
+    }
+
+    public SearchResult find(SearchQuery searchQuery) {
+        SearchResult result = searcher.find(searchQuery);
+        return result;
     }
 }

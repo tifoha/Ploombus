@@ -1,4 +1,4 @@
-package ua.tifoha.search.indexer.crawler.crawler4j;
+package ua.tifoha.search.crawler.crawler4j;
 
 import edu.uci.ics.crawler4j.crawler.CrawlConfig;
 import edu.uci.ics.crawler4j.crawler.CrawlController;
@@ -6,21 +6,27 @@ import edu.uci.ics.crawler4j.crawler.WebCrawler;
 import edu.uci.ics.crawler4j.fetcher.PageFetcher;
 import edu.uci.ics.crawler4j.frontier.DocIDServer;
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtServer;
+import edu.uci.ics.crawler4j.url.URLCanonicalizer;
+import edu.uci.ics.crawler4j.url.WebURL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ua.tifoha.search.indexer.crawler.BasicCrawlerInfo;
-import ua.tifoha.search.indexer.crawler.CrawlResponse;
+import ua.tifoha.search.crawler.BasicCrawlerInfo;
+import ua.tifoha.search.crawler.CrawlResponse;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Vitaly on 12.09.2016.
  */
-public class SharedCrawlController extends BugFixedCrawlController implements CrawlResponse {
+public class SharedCrawlController extends CrawlController implements CrawlResponse {
     private static final Logger LOGGER = LoggerFactory.getLogger(CrawlController.class);
+
     protected int delayBeforeShutdownCrawl;
+    protected String url;
+    private Runnable beforeFinishCallback;
 
     public SharedCrawlController(CrawlConfig config, DocIDServer docIdServer, PageFetcher pageFetcher, RobotstxtServer robotstxtServer, int delayBeforeShutdownCrawl) throws Exception {
         super(config, pageFetcher, robotstxtServer);
@@ -48,10 +54,19 @@ public class SharedCrawlController extends BugFixedCrawlController implements Cr
     }
 
     @Override
+    public String getUrl() {
+        return url;
+    }
+
+    @Override
     public void shutdown() {
         LOGGER.info("Shutting down...");
         this.shuttingDown = true;
         frontier.finish();
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     @Override
@@ -70,6 +85,7 @@ public class SharedCrawlController extends BugFixedCrawlController implements Cr
                 thread.start();
                 crawlers.add(crawler);
                 threads.add(thread);
+                crawlersLocalData.add(crawler.getMyLocalData());
                 LOGGER.info("Crawler {} started", i);
             }
 
@@ -135,6 +151,7 @@ public class SharedCrawlController extends BugFixedCrawlController implements Cr
                                     LOGGER.info("All of the crawlers are stopped. Finishing the process...");
                                     // At this step, frontier notifies the threads that were waiting for new URLs and they should stop
                                     frontier.finish();
+                                    crawlersLocalData.clear();
                                     for (T crawler : crawlers) {
                                         crawler.onBeforeExit();
                                         crawlersLocalData.add(crawler.getMyLocalData());
@@ -144,15 +161,10 @@ public class SharedCrawlController extends BugFixedCrawlController implements Cr
                                     sleep(delayBeforeShutdownCrawl);
 
                                     frontier.close();
-//                                    controlled by crawl manager
-//                                    docIdServer.close();
-//                                    pageFetcher.shutDown();
 
                                     finished = true;
                                     waitingLock.notifyAll();
-//                                    controlled by crawl manager
-//                                    env.close();
-
+                                    beforeFinish();
                                     return;
                                 }
                             }
@@ -174,9 +186,53 @@ public class SharedCrawlController extends BugFixedCrawlController implements Cr
         }
     }
 
+    protected void beforeFinish() {
+        if (beforeFinishCallback != null) {
+            beforeFinishCallback.run();
+        }
+    }
+
     @Override
     public void addSeed(String pageUrl, int docId) {
-        super.addSeed(pageUrl, docId);
+        String canonicalUrl = URLCanonicalizer.getCanonicalURL(pageUrl);
+        if (canonicalUrl == null) {
+            LOGGER.error("Invalid seed URL: {}", pageUrl);
+        } else {
+            if (docId < 0) {
+                docId = docIdServer.getDocId(canonicalUrl);
+                if (docId > 0) {
+                    LOGGER.trace("This URL is already seen.");
+                    return;
+                }
+                docId = docIdServer.getNewDocID(canonicalUrl);
+            } else {
+                try {
+                    docIdServer.addUrlAndDocId(canonicalUrl, docId);
+                } catch (Exception e) {
+                    LOGGER.error("Could not add seed: {}", e.getMessage());
+                }
+            }
+
+            WebURL webUrl = new WebURL();
+            webUrl.setURL(canonicalUrl);
+            webUrl.setDocid(docId);
+            webUrl.setDepth((short) 0);
+            if (robotstxtServer.allows(webUrl)) {
+                //этот метод будит очередь
+                frontier.scheduleAll(Collections.singletonList(webUrl));
+            } else {
+                LOGGER.warn("Robots.txt does not allow this seed: {}",
+                        pageUrl); // using the WARN level here, as the user specifically asked to add this seed
+            }
+        }
+    }
+
+    public Runnable getBeforeFinishCallback() {
+        return beforeFinishCallback;
+    }
+
+    public void setBeforeFinishCallback(Runnable beforeFinishCallback) {
+        this.beforeFinishCallback = beforeFinishCallback;
     }
 
     protected static void sleep(int millis) {

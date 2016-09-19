@@ -2,7 +2,7 @@ package ua.tifoha.search;
 
 import ua.tifoha.search.exception.SearchEngineException;
 import ua.tifoha.search.indexer.Indexer;
-import ua.tifoha.search.indexer.crawler.Crawler;
+import ua.tifoha.search.crawler.Crawler;
 import ua.tifoha.search.searcher.Searcher;
 
 /**
@@ -12,8 +12,6 @@ public interface SearchEngine extends Configurable<SearchEngineConfiguration>, A
     Searcher getSearcher();
 
     Indexer getIndexer();
-
-    Crawler getCrawler();
 
     @Override
     void close() throws SearchEngineException;

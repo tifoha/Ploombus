@@ -1,7 +1,7 @@
-package ua.tifoha.search.indexer.crawler.crawler4j;
+package ua.tifoha.search.crawler.crawler4j;
 
 import edu.uci.ics.crawler4j.crawler.CrawlConfig;
-import ua.tifoha.search.indexer.crawler.CrawlerConfiguration;
+import ua.tifoha.search.crawler.CrawlerConfiguration;
 
 public class ImmutableCrawlConfigAdapter extends CrawlConfig {
     private final CrawlerConfiguration config;

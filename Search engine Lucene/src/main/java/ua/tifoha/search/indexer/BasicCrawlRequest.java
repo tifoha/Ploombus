@@ -1,7 +1,7 @@
 package ua.tifoha.search.indexer;
 
-import ua.tifoha.search.indexer.crawler.Link;
-import ua.tifoha.search.indexer.crawler.WebPage;
+import ua.tifoha.search.crawler.Link;
+import ua.tifoha.search.crawler.WebPage;
 
 import java.util.Objects;
 import java.util.function.BiPredicate;
@@ -34,14 +34,15 @@ public class BasicCrawlRequest implements CrawlRequest {
         }
     };
     public static final BiPredicate<WebPage, Link> DEFAULT_PAGE_FILTER = ONLY_HTML_FILTER.and(ONLY_ONE_DOMAIN);
-//    public static final Consumer<CrawlerInfo> DEFAULT_CALLBACK = crawlerStatus -> {};
 
-    private final String url;
-    private int maxDepthOfCrawling = -1;
+    private String url;
+    private int maxDepthOfCrawling = 1;
     private int maxPagesToFetch = -1;
     private int maxOutgoingLinksToFollow = 5000;
     private BiPredicate<WebPage, Link> pageFilter = DEFAULT_PAGE_FILTER;
-//    private Consumer<CrawlerInfo> callback = DEFAULT_CALLBACK;
+
+    public BasicCrawlRequest() {
+    }
 
     public BasicCrawlRequest(String url) {
         Objects.requireNonNull(url);
@@ -90,6 +91,10 @@ public class BasicCrawlRequest implements CrawlRequest {
         this.pageFilter = pageFilter;
     }
 
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -97,24 +102,12 @@ public class BasicCrawlRequest implements CrawlRequest {
 
         BasicCrawlRequest that = (BasicCrawlRequest) o;
 
-        if (maxDepthOfCrawling != that.maxDepthOfCrawling) return false;
-        if (maxPagesToFetch != that.maxPagesToFetch) return false;
-        if (maxOutgoingLinksToFollow != that.maxOutgoingLinksToFollow) return false;
-        return url.equals(that.url);
+        return url != null ? url.equals(that.url) : that.url == null;
 
     }
 
     @Override
     public int hashCode() {
-        int result = url.hashCode();
-        result = 31 * result + maxDepthOfCrawling;
-        result = 31 * result + maxPagesToFetch;
-        result = 31 * result + maxOutgoingLinksToFollow;
-        return result;
+        return url != null ? url.hashCode() : 0;
     }
-
-//    public void setCallback(Consumer<CrawlerInfo> callback) {
-//        Objects.requireNonNull(callback);
-//        this.callback = callback;
-//    }
 }

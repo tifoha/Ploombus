@@ -1,4 +1,4 @@
-package ua.tifoha.search.indexer.crawler.crawler4j;
+package ua.tifoha.search.crawler.crawler4j;
 
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.EnvironmentConfig;
@@ -9,6 +9,7 @@ import edu.uci.ics.crawler4j.fetcher.PageFetcher;
 import edu.uci.ics.crawler4j.frontier.DocIDServer;
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtServer;
 import edu.uci.ics.crawler4j.util.IO;
+import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.tifoha.search.AbstractConfigurableClass;
@@ -16,7 +17,7 @@ import ua.tifoha.search.exception.CrawlerException;
 import ua.tifoha.search.indexer.BasicCrawlRequest;
 import ua.tifoha.search.indexer.CrawlRequest;
 import ua.tifoha.search.indexer.Indexer;
-import ua.tifoha.search.indexer.crawler.*;
+import ua.tifoha.search.crawler.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,11 +26,12 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.BiPredicate;
 
+
 /**
  * Created by Vitaly on 12.09.2016.
  */
 public class MultiCrawlerControllerDelegate extends AbstractConfigurableClass<CrawlerConfiguration> implements Crawler {
-    protected static final Logger LOGGER = LoggerFactory.getLogger(SingletonCrawlerControllerDelegateImpl.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(MultiCrawlerControllerDelegate.class);
 
     private final Map<CrawlRequest, CrawlResponse> crawlControllers = new HashMap<>();
     private final Indexer indexer;
@@ -37,9 +39,6 @@ public class MultiCrawlerControllerDelegate extends AbstractConfigurableClass<Cr
     private final Environment env;
     private final PageFetcher pageFetcher;
     private final RobotstxtServer robotstxtServer;
-
-
-//    private final BiPredicate<WebPageAdapterImpl, LinkAdapterImpl> pageFilter;
 
     public MultiCrawlerControllerDelegate(CrawlerConfiguration config, Indexer indexer) throws CrawlerException {
         super(config);
@@ -76,18 +75,13 @@ public class MultiCrawlerControllerDelegate extends AbstractConfigurableClass<Cr
         robotstxtServer = new RobotstxtServer(new ImmutableRobotstxtConfigAdapter(config), pageFetcher);
     }
 
-//    public MultiCrawlerControllerDelegateImpl(CrawlerConfigurationImpl config, IndexerImpl indexer) throws CrawlerException {
-//        this(config, indexer,  ONLY_HTML_FILTER.and(ONLY_ONE_DOMAIN));
-//
-//    }
-
     @Override
     public CrawlResponse addSeed(CrawlRequest request) {
         return crawlControllers.computeIfAbsent(request, this::addCrawlController);
     }
 
     private SharedCrawlController addCrawlController(CrawlRequest request) {
-        CrawlConfig crawlConfig = Utils.convert(this.config);
+        CrawlConfig crawlConfig = convert(this.config);
         crawlConfig.setMaxDepthOfCrawling(request.getMaxDepthOfCrawling());
         crawlConfig.setMaxOutgoingLinksToFollow(request.getMaxOutgoingLinksToFollow());
         crawlConfig.setMaxPagesToFetch(request.getMaxPagesToFetch());
@@ -98,7 +92,9 @@ public class MultiCrawlerControllerDelegate extends AbstractConfigurableClass<Cr
 
         try {
             SharedCrawlController crawlController = new SharedCrawlController(crawlConfig, docIdServer, pageFetcher, robotstxtServer, config.getDelayBeforeShutdownCrawl());
+            crawlController.setUrl(request.getUrl());
             crawlController.addSeed(request.getUrl());
+            crawlController.setBeforeFinishCallback(indexer::commit);
             crawlController.startNonBlocking(crawlerFactory, config.getNumberOfCralwers());
             LOGGER.info("Web crawler controller started with %d crawlers", config.getNumberOfCralwers());
             return crawlController;
@@ -109,20 +105,48 @@ public class MultiCrawlerControllerDelegate extends AbstractConfigurableClass<Cr
         }
     }
 
-    //    @Override
+    public static CrawlConfig convert(CrawlerConfiguration crawlerConfiguration) {
+        CrawlConfig config = new CrawlConfig();
+        try {
+            BeanUtils.copyProperties(config, crawlerConfiguration);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        config.setProcessBinaryContentInCrawling(crawlerConfiguration.isIncludeBinaryContent());
+        config.setIncludeBinaryContentInCrawling(crawlerConfiguration.isIncludeBinaryContent());
+
+        return config;
+    }
+
+    @Override
+    public String getUrl() {
+        return null;
+    }
+
+    @Override
     public boolean isFinished() {
         return crawlControllers.values().stream().allMatch(CrawlResponse::isFinished);
     }
 
-    //    @Override
+    @Override
     public boolean isShuttingDown() {
         return crawlControllers.values().stream().allMatch(CrawlResponse::isShuttingDown);
     }
 
-    //    @Override
+    @Override
     public void shutdown() {
         crawlControllers.forEach((request, crawlController) -> crawlController.shutdown());
+    }
 
+    public void shutdown(String url) {
+        shutdown(new BasicCrawlRequest(url));
+    }
+
+    public void shutdown(CrawlRequest request) {
+        crawlControllers.computeIfPresent(request, (req, resp) -> {
+            resp.shutdown();
+            return resp;});
     }
 
     @Override
@@ -144,23 +168,19 @@ public class MultiCrawlerControllerDelegate extends AbstractConfigurableClass<Cr
     @Override
     public BasicCrawlerInfo getStatus() {
         BasicCrawlerInfo result = new BasicCrawlerInfo();
-        for (CrawlResponse crawlController :crawlControllers.values()) {
-                CrawlerInfo stat = crawlController.getStatus();
-                result.add(stat);
+        for (CrawlResponse crawlController : crawlControllers.values()) {
+            CrawlerInfo stat = crawlController.getStatus();
+            result.add(stat);
         }
 
         return result;
     }
 
-    public CrawlerInfo getStatus(BasicCrawlRequest request) {
-        CrawlerInfo status = null;
-        CrawlResponse crawlController = crawlControllers.get(request);
-
-        if (crawlController != null) {
-            status = crawlController.getStatus();
-        }
-
-        return status;
+    public Optional<CrawlResponse> getCrawlResponse(String id) {
+        Optional<CrawlResponse> crawlResponse = crawlControllers.values().stream()
+                .filter(crawlController -> crawlController.getUrl().equals(id))
+                .findAny();
+        return crawlResponse;
     }
 
     @Override

@@ -69,6 +69,10 @@ body {
 
 
 
+.active {
+    color: #4285f4;
+}
+
 .bloo {
     color: #4285f4;
 }
@@ -267,3 +271,132 @@ body {
 .link {
     color: #006621;
 }
+
+
+/*<!--                pagination             -->*/
+.pagination ul li{
+    display: inline-block;
+}
+
+.active{
+    background-image: url(../img/nav_logo242_hr.png);
+    width: 31px !important;
+    background-position: -48px 54px !important;
+    padding-top: 38px !important;
+    text-align: center !important;
+}
+
+
+
+.pagination ul li:nth-child(2){
+        background-image: url(../img/nav_logo242_hr.png);
+    background-position: -80px 54px;
+    padding-top: 38px;
+    text-align: center;
+    width: 31px;
+}
+
+.pagination ul li:nth-child(3){
+        background-image: url(../img/nav_logo242_hr.png);
+        background-position: -80px 54px;
+    padding-top: 38px;
+    text-align: center;
+    width: 31px;
+}
+
+.pagination ul li:nth-child(4){
+        background-image: url(../img/nav_logo242_hr.png);
+        background-position: -80px 54px;
+    padding-top: 38px;
+    text-align: center;
+    width: 31px;
+}
+
+.pagination ul li:nth-child(5){
+        background-image: url(../img/nav_logo242_hr.png);
+        background-position: -80px 54px;
+    padding-top: 38px;
+    text-align: center;
+    width: 31px;
+}
+
+.pagination ul li:nth-child(6){
+        background-image: url(../img/nav_logo242_hr.png);
+        background-position: -80px 54px;
+    padding-top: 38px;
+    text-align: center;
+    width: 31px;
+}
+
+.pagination ul li:nth-child(7){
+        background-image: url(../img/nav_logo242_hr.png);
+        background-position: -80px 54px;
+    padding-top: 38px;
+    text-align: center;
+    width: 31px;
+}
+
+.pagination ul li:nth-child(8){
+        background-image: url(../img/nav_logo242_hr.png);
+    background-position: -80px 54px;
+    padding-top: 38px;
+    text-align: center;
+    width: 31px;
+    margin-right: 128px;
+}
+
+.back {
+    margin-right: 50px !important;
+    background-image: url(../img/nav_logo242_hr.png) !important;
+    padding-top: 38px !important;
+    text-align: center !important;
+    width: 31px !important;
+    background-position: -1px -15px !important;
+}
+.back a{
+    margin-left: -15px;
+}
+
+.next {
+    background-image: url(../img/nav_logo242_hr.png) !important;
+    padding-top: 38px !important;
+    text-align: center !important;
+    width: 31px !important;
+    background-position: 32px -15px !important;
+    margin-left: 120px;
+}
+
+.next a{
+
+}
+
+.pagination ul li a{
+    font-size: 15px;
+    font-weight: 500;
+    width: 50px;
+}
+
+.pagination {
+    margin: 0 auto;
+    display: table;
+    padding-top: 100px;
+}
+
+.Pl {
+    font-size: 48px;
+    font-weight: 700;
+    position: relative;
+    left: 36px;
+    top: 41px;
+}
+
+
+
+.mber{
+    font-size: 48px;
+    font-weight: 700;
+    position: relative;
+    left: 260px;
+    top: -69px;
+}
+/*<!--               end pagination             -->*/

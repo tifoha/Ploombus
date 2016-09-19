@@ -1,4 +1,4 @@
-package ua.tifoha.search.indexer.crawler;
+package ua.tifoha.search.crawler;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -58,7 +58,7 @@ public class BasicCrawlerInfo implements CrawlerInfo {
 
     @Override
     public void add(CrawlerInfo that) {
-        this.totalProcessedPages.addAndGet(that.getTotalLinks());
+        this.totalProcessedPages.addAndGet(that.getTotalProcessedPages());
         this.totalLinks.addAndGet(that.getTotalLinks());
         this.totalDataSize.addAndGet(that.getTotalDataSize());
     }
