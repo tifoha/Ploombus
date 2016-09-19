@@ -78,7 +78,7 @@ public class LuceneIndexer extends AbstractConfigurableClass<IndexerConfiguratio
                 LOGGER.info("Waiting {}mil until aborting...", config.getMaxTimeBeforeTermination());
                 indexTaskExecutor.awaitTermination(config.getMaxTimeBeforeTermination(), TimeUnit.MILLISECONDS);
 
-            } catch (InterruptedException e) {
+            } catch (InterruptedException ignore) {
 
             } finally {
                 List<Runnable> tasks = indexTaskExecutor.shutdownNow();
@@ -128,7 +128,7 @@ public class LuceneIndexer extends AbstractConfigurableClass<IndexerConfiguratio
         }
 
         @Override
-        public void doWork() throws InterruptedException, Exception {
+        public void doWork() throws Exception {
             index(request);
             LOGGER.info("Page \"{}\" was successfully added to index", request.getUrl());
             stop();
