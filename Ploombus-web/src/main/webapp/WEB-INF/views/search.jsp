@@ -18,10 +18,10 @@
     <div class="content">
         <div class="logo">
             <p>
-                <span class="bloo">P</span>
+                <span class="blue">P</span>
                 <span class="red">l</span>
                 <span class="yellow">o</span>
-                <span class="bloo">o</span>
+                <span class="blue">o</span>
                 <span class="green">m</span>
                 <span class="yellow">b</span>
                 <span class="red">e</span>

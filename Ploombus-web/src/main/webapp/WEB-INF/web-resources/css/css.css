@@ -73,7 +73,7 @@ body {
     color: #4285f4;
 }
 
-.bloo {
+.blue {
     color: #4285f4;
 }
 
@@ -288,7 +288,7 @@ body {
 
 
 
-.pagination ul li:nth-child(2){
+.no-active{
         background-image: url(../img/nav_logo242_hr.png);
     background-position: -80px 54px;
     padding-top: 38px;
@@ -296,54 +296,6 @@ body {
     width: 31px;
 }
 
-.pagination ul li:nth-child(3){
-        background-image: url(../img/nav_logo242_hr.png);
-        background-position: -80px 54px;
-    padding-top: 38px;
-    text-align: center;
-    width: 31px;
-}
-
-.pagination ul li:nth-child(4){
-        background-image: url(../img/nav_logo242_hr.png);
-        background-position: -80px 54px;
-    padding-top: 38px;
-    text-align: center;
-    width: 31px;
-}
-
-.pagination ul li:nth-child(5){
-        background-image: url(../img/nav_logo242_hr.png);
-        background-position: -80px 54px;
-    padding-top: 38px;
-    text-align: center;
-    width: 31px;
-}
-
-.pagination ul li:nth-child(6){
-        background-image: url(../img/nav_logo242_hr.png);
-        background-position: -80px 54px;
-    padding-top: 38px;
-    text-align: center;
-    width: 31px;
-}
-
-.pagination ul li:nth-child(7){
-        background-image: url(../img/nav_logo242_hr.png);
-        background-position: -80px 54px;
-    padding-top: 38px;
-    text-align: center;
-    width: 31px;
-}
-
-.pagination ul li:nth-child(8){
-        background-image: url(../img/nav_logo242_hr.png);
-    background-position: -80px 54px;
-    padding-top: 38px;
-    text-align: center;
-    width: 31px;
-    margin-right: 128px;
-}
 
 .back {
     margin-right: 50px !important;
@@ -363,7 +315,6 @@ body {
     text-align: center !important;
     width: 31px !important;
     background-position: 32px -15px !important;
-    margin-left: 120px;
 }
 
 .next a{
@@ -393,10 +344,10 @@ body {
 
 
 .mber{
-    font-size: 48px;
-    font-weight: 700;
-    position: relative;
-    left: 260px;
-    top: -69px;
+    font-size: 48px !important;
+    font-weight: 700 !important;
+    position: relative !important;
+    left: 0px !important;
+    top: -22px !important;
 }
 /*<!--               end pagination             -->*/

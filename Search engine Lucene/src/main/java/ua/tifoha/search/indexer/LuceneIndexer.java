@@ -33,7 +33,7 @@ public class LuceneIndexer extends AbstractConfigurableClass<IndexerConfiguratio
 
     private final CyclicCommitter committer;
     private final IndexWriter indexWriter;
-    private final ExecutorService indexTaskExecutor = Executors.newSingleThreadExecutor();
+    private final ExecutorService indexTaskExecutor = Executors.newCachedThreadPool();
 
     public LuceneIndexer(LuceneSearchEngineEnvironment env) throws IndexDirectoryException {
         super(env.getConfig());
